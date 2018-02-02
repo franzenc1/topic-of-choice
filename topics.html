@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Sports!</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<style type="text/css">
+	#container {
+		background-color: : red;
+	}
+
+	.topicButton {
+		background-color: blue;
+		color: white;
+		margin: 4px;
+	}
+	.panel {
+		background: blue:
+		color: white;
+		width: 400px;
+		height: auto;
+		float: right;
+		padding: 10px;
+		margin-right: 50px;
+		margin-top: 30px;
+		}
+	.reveal {
+		height: 200px;
+		width: 180px;
+		margin: 15px;
+		display: inline-block;
+		float: left;
+	}
+
+	#user-input {
+		width: 300px;
+		margin-bottom: 10px;
+	}
+	#rating-info {
+		float: left;
+	}
+</style>
+<body>
+	<div id=Container>
+		<div class="row">
+     <div class="col-md-12">
+	<div id="sportsButtons"></div>
+	</div></div>
+
+	<div class="row">
+     <div class="col-md-12">
+		<div class="panel panel-primary">
+		<form id="requestForm">
+
+			<label for="user-input">Add a topic</label>
+			<input type="text" id="user-input"><br>
+
+			<input id="addTopic" type="submit" value="Submit">
+		</form>
+	</div>
+</div></div>
+<div class="row">
+     <div class="col-md-12">
+	<div id="sports">
+		
+	</div>
+</div></div></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		//On page load:
+
+			//Set variables:
+				var topics = ["Denver Broncos", "Denver Nuggets", "Colorado Rockies", "CU Football", "CU Basketball", "Colorado Avalanche", "ESPN", "Seinfeld", "Designated Survivor", "Hiking", "Running", "Medellin", "Myanmar"];
+
+				//buttonTitles = ["baseball", "hockey", "football"]
+				 
+			// display buttons - function
+			function renderButtons() {
+					//clear previous buttons from screen
+					$("#sportsButtons").empty();
+					// for loop through buttonTitles
+					for (var i = 0; i < topics.length; i++) {
+						//create a jQuery button
+					var a = $("<button>");
+
+					a.addClass("topicButton")
+						//Add attribute to jQuery button created (attribute title: "button-title")
+					a.attr("button-title", topics[i]);
+						//Put the current button title that we are looping through in the botton (.text or .html)
+					a.text(topics[i]);	
+						//Append the button to the page
+					$("#sportsButtons").append(a);
+				}
+			}
+			renderButtons();
+
+
+			// //When the user clicks on one of the buttons -- function
+			// function displayTopicInfo () {	
+			// 	//prevent default
+				$(".topicButton").on("click", function(event) {
+				event.preventDefault();
+			// 	//get the attribute of the button clicked, and store in a variable
+				 var topic = $(this).attr("button-title");
+
+			// 	//clear out old images from page (.empty)
+				$("#sports").empty();
+
+			// 	//AJAX call to GIPHY
+				 var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=uSbwqf1bnIiEwovZM1GFMGQ3n1AOKkOH&q=" + topic + "&limit=10&offset=0&rating=R&lang=en";
+					// Method | GET
+					// URL | https://api.giphy.com/v1/gifs/search?api_key=uSbwqf1bnIiEwovZM1GFMGQ3n1AOKkOH&q=(ATTRIBUTE OF BUTTON CLICKED)	(see video for the rest)
+					
+
+					$.ajax({
+         			 url: queryURL,
+         			 method: "GET"
+       				 }).then(function(response) {
+       				 	console.log(response);
+						//loop through response.data
+						
+						for (var i = 0; i < response.data.length; i++) {
+							//create a jQuery div
+							var gifDiv = $("<div>");
+							//create a jQuery image
+							var topicImage = $("<img>");
+							// set the src attribute of the jQuery image to be the image from GIPHY response (data[I].images.original_still)
+							topicImage.addClass("reveal");
+
+							topicImage.attr("src", response.data[i].images.original_still.url);
+							//add data-state attribute to jQuery image = "still"
+							topicImage.attr('data-state', "still");
+							//add data-animate attribute to jQuery image = "response.data[i].images.original.url"
+							topicImage.attr("src", response.data[i].images.original.url);
+							topicImage.attr('data-state', "animate");
+
+							
+							//add data-still url attribute to jQuery image = "response.data[i].images.still.url"
+							// topicImage.attr("src", response.data[i].images.still.url);
+							//create a jQuery paragraph
+							var rating = $("<p id=rating-info>").text("Rated: " + response.data[i].rating);
+								//Put the rating from GIPHY response into paragraph created (respnse.data[i].rating)
+								gifDiv.append(rating);
+								//Append jQuery image to jQuery div 
+								gifDiv.append(topicImage);
+								//Append jQuery paragraph to jQuery div
+								
+								//Append jQuery div to the page
+								$("#sports").append(gifDiv);
+							}
+						})
+					})
+						// }
+			//On click of form submit button - function
+			$("#addTopic").on("click", function(event) {
+        		event.preventDefault();
+				//Create variable of user input test field
+				var addedTopic = $("#user-input").val().trim();
+				//Push variable just created to array (buttonTitles)
+				topics.push(addedTopic);
+				//run displayButtons function
+				renderButtons();
+			});
+
+			
+
+			// On click of image div -- function
+				//Set variable equal to image-clicked data-state attribute
+				//if (imageState == "still")
+					//Set src attribute of image clicked to be the data-animate url of the image clicked
+					//Set data-state attribute of image clicked to be "animated"
+				//else if (imageState == "animated")
+					//Set src attribute of image clicked to be data-still attribute
+					//Set data-state attribute of image clicked to be "still"
+					// On click of image div -- function
+				$(".reveal").on("click", function() {
+      // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+      var state = $(this).attr("data-state");
+      // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+      // Then, set the image's data-state to animate
+      // Else set src to the data-still value
+      if (state === "still") {
+        $(this).attr("src", $(this).attr("data-animate"));
+        $(this).attr("data-state", "animate");
+      } else {
+        $(this).attr("src", $(this).attr("data-still"));
+        $(this).attr("data-state", "still");
+      }
+
+    });
+
+			
+
+
+	</script>
+
+</body>
+
+
+</html>
